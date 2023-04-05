@@ -8,20 +8,27 @@ using Newtonsoft.Json;
 
 namespace Bugporter.API.Functions;
 
-public static class Function1
+public class Function1
 {
+    private readonly HelloWorld _helloWorld;
+
+    public Function1(HelloWorld helloWorld)
+    {
+        _helloWorld = helloWorld;
+    }
     [FunctionName("Function1")]
-    public static async Task<IActionResult> Run(
+    public async Task<IActionResult> Run(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest req,
         ILogger log)
     {
+        _helloWorld.Run();
         log.LogInformation("C# HTTP trigger function processed a request.");
 
-        string name = req.Query["name"];
+        string? name = req.Query["name"];
 
         string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-        dynamic data = JsonConvert.DeserializeObject(requestBody);
-        name ??= data.name;
+        dynamic? data = JsonConvert.DeserializeObject(requestBody);
+        name ??= data?.name;
 
         string responseMessage = string.IsNullOrEmpty(name)
             ? "This HTTP triggered function executed successfully. Pass a name in the query string or in the request body for a personalized response."
